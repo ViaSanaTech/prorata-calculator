@@ -96,7 +96,7 @@ const Index = () => {
   return (
     <div className="flex flex-col items-center min-h-screen p-8 bg-gradient-to-b from-white to-gray-50">
       <h1 className="text-3xl font-semibold text-gray-800 mb-2">Calculateur Start / Stop prorata</h1>
-      <p className="text-gray-500 mb-8">Calculez le coût proratisé de votre abonnement d'exercice</p>
+      <p className="text-gray-500 mb-8">Calculez le coût proratisé d'un abonnement selon la date de démarrage ou d'arrêt d'un client</p>
 
       <Card className="w-full max-w-xl p-6 shadow-md bg-white border-0 transition-all duration-300 hover:shadow-lg">
         <div className="space-y-6">
