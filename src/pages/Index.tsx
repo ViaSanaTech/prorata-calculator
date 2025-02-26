@@ -43,6 +43,11 @@ const Index = () => {
     );
   };
 
+  const selectAllDays = () => {
+    // Sélectionner tous les jours (0-6, dimanche-samedi)
+    setSelectedDays([0, 1, 2, 3, 4, 5, 6]);
+  };
+
   const calculateExerciseDays = () => {
     if (selectedDays.length === 0) return;
     
@@ -184,6 +189,16 @@ const Index = () => {
           {/* Jours d'exercice */}
           <div className="space-y-2">
             <Label className="text-gray-700">Jours d'exercice hebdomadaires</Label>
+            <div className="mb-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={selectAllDays}
+                className="text-sm border-gray-200 hover:bg-blue-50 hover:text-blue-600"
+              >
+                Temps plein (tous les jours)
+              </Button>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {daysOfWeek.map((day) => (
                 <div key={day.id} className="flex items-center space-x-2">
