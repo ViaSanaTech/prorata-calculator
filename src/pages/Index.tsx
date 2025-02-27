@@ -116,7 +116,7 @@ const Index = () => {
     setDaysInMonth(totalDaysInMonth);
     
     // Calcul du coût proratisé avec le nouveau dénominateur (jours exerçables dans le mois)
-    const calculatedProRatedCost = totalExercisableDaysInMonth ===
+    const calculatedProRatedCost = totalExercisableDaysInMonth === 0
       ? 0 
       : parseFloat(((subscriptionPrice * exerciseDaysCount) / totalExercisableDaysInMonth).toFixed(2));
     
