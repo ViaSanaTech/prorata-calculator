@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { format, endOfMonth, getDaysInMonth, isAfter, isSameDay, isBefore, getDay, parseISO, startOfMonth } from "date-fns";
+import { format, endOfMonth, getDaysInMonth, isAfter, isSameDay, isBefore, getDay, parseISO, startOfMonth, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,7 @@ const Index = () => {
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 4]); // Par défaut: lundi, jeudi
   const [subscriptionPrice, setSubscriptionPrice] = useState<number>(50);
   const [exerciseDays, setExerciseDays] = useState<number>(0);
+  const [exercisableDaysInMonth, setExercisableDaysInMonth] = useState<number>(0);
   const [proRatedCost, setProRatedCost] = useState<number>(0);
   const [daysInMonth, setDaysInMonth] = useState<number>(0);
   const [isCalculated, setIsCalculated] = useState<boolean>(false);
@@ -46,6 +47,24 @@ const Index = () => {
   const selectAllDays = () => {
     // Sélectionner tous les jours (0-6, dimanche-samedi)
     setSelectedDays([0, 1, 2, 3, 4, 5, 6]);
+  };
+
+  // Calcule le nombre de jours exerçables dans un mois (jours qui correspondent aux jours d'exercice hebdomadaires)
+  const countExercisableDaysInMonth = (monthDate: Date, exerciseDays: number[]) => {
+    const firstDayOfMonth = startOfMonth(monthDate);
+    const lastDayOfMonth = endOfMonth(monthDate);
+    let count = 0;
+    let currentDate = new Date(firstDayOfMonth);
+
+    while (isBefore(currentDate, lastDayOfMonth) || isSameDay(currentDate, lastDayOfMonth)) {
+      const dayOfWeek = getDay(currentDate);
+      if (exerciseDays.includes(dayOfWeek)) {
+        count++;
+      }
+      currentDate = addDays(currentDate, 1);
+    }
+
+    return count;
   };
 
   const calculateExerciseDays = () => {
@@ -66,6 +85,8 @@ const Index = () => {
     }
 
     const totalDaysInMonth = getDaysInMonth(monthReference);
+    const totalExercisableDaysInMonth = countExercisableDaysInMonth(monthReference, selectedDays);
+    
     let exerciseDaysCount = 0;
 
     // Copie de la date de départ pour itérer
@@ -81,13 +102,20 @@ const Index = () => {
       }
       
       // Passage au jour suivant
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate = addDays(currentDate, 1);
     }
 
     // Mise à jour des états
     setExerciseDays(exerciseDaysCount);
+    setExercisableDaysInMonth(totalExercisableDaysInMonth);
     setDaysInMonth(totalDaysInMonth);
-    setProRatedCost(parseFloat(((subscriptionPrice * exerciseDaysCount) / totalDaysInMonth).toFixed(2)));
+    
+    // Calcul du coût proratisé avec le nouveau dénominateur (jours exerçables dans le mois)
+    const calculatedProRatedCost = totalExercisableDaysInMonth === 0 
+      ? 0 
+      : parseFloat(((subscriptionPrice * exerciseDaysCount) / totalExercisableDaysInMonth).toFixed(2));
+    
+    setProRatedCost(calculatedProRatedCost);
     setIsCalculated(true);
   };
 
@@ -258,8 +286,8 @@ const Index = () => {
                 <p className="text-2xl font-bold text-blue-600">{exerciseDays} jours</p>
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Jours dans le mois</p>
-                <p className="text-2xl font-bold text-gray-700">{daysInMonth} jours</p>
+                <p className="text-sm text-gray-500">Jours exerçables dans le mois</p>
+                <p className="text-2xl font-bold text-gray-700">{exercisableDaysInMonth} jours</p>
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-500">Prix TTC</p>
@@ -271,8 +299,8 @@ const Index = () => {
               </div>
             </div>
             <div className="pt-2 text-center text-sm text-gray-500">
-              <p>Formule: Prix × (Jours d'exercice ÷ Jours du mois)</p>
-              <p className="mt-1 font-medium">{subscriptionPrice.toFixed(2)} € × ({exerciseDays} ÷ {daysInMonth}) = {proRatedCost.toFixed(2)} €</p>
+              <p>Formule: Prix × (Jours d'exercice ÷ Jours exerçables du mois)</p>
+              <p className="mt-1 font-medium">{subscriptionPrice.toFixed(2)} € × ({exerciseDays} ÷ {exercisableDaysInMonth}) = {proRatedCost.toFixed(2)} €</p>
             </div>
           </div>
         </Card>
