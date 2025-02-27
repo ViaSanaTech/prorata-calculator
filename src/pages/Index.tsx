@@ -36,6 +36,11 @@ const Index = () => {
   const [daysInMonth, setDaysInMonth] = useState<number>(0);
   const [isCalculated, setIsCalculated] = useState<boolean>(false);
 
+  // Calcul des montants HT (TTC divisé par 1.2)
+  const getHTPrice = (ttcPrice: number) => {
+    return parseFloat((ttcPrice / 1.2).toFixed(2));
+  };
+
   const toggleDay = (dayId: number) => {
     setSelectedDays((current) =>
       current.includes(dayId)
@@ -111,7 +116,7 @@ const Index = () => {
     setDaysInMonth(totalDaysInMonth);
     
     // Calcul du coût proratisé avec le nouveau dénominateur (jours exerçables dans le mois)
-    const calculatedProRatedCost = totalExercisableDaysInMonth === 0 
+    const calculatedProRatedCost = totalExercisableDaysInMonth ===
       ? 0 
       : parseFloat(((subscriptionPrice * exerciseDaysCount) / totalExercisableDaysInMonth).toFixed(2));
     
@@ -289,13 +294,25 @@ const Index = () => {
                 <p className="text-sm text-gray-500">Jours exerçables dans le mois</p>
                 <p className="text-2xl font-bold text-gray-700">{exercisableDaysInMonth} jours</p>
               </div>
+
+              {/* Prix TTC */}
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-500">Prix TTC</p>
                 <p className="text-2xl font-bold text-gray-700">{subscriptionPrice.toFixed(2)} €</p>
               </div>
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <p className="text-sm text-blue-700">Prix proratisé HT</p>
+                <p className="text-sm text-blue-700">Prix proratisé TTC</p>
                 <p className="text-2xl font-bold text-blue-600">{proRatedCost.toFixed(2)} €</p>
+              </div>
+              
+              {/* Prix HT */}
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-500">Prix HT</p>
+                <p className="text-2xl font-bold text-gray-700">{getHTPrice(subscriptionPrice).toFixed(2)} €</p>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <p className="text-sm text-blue-700">Prix proratisé HT</p>
+                <p className="text-2xl font-bold text-blue-600">{getHTPrice(proRatedCost).toFixed(2)} €</p>
               </div>
             </div>
             <div className="pt-2 text-center text-sm text-gray-500">
